@@ -1,0 +1,109 @@
+-- Shay Blue Wave GUI (Invisible Only)
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "Shay"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Main Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 280, 0, 150)
+frame.Position = UDim2.new(0.5, -140, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(0, 191, 255) -- Aqua Blue
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 16)
+
+-- Wavy gradient background
+local waveGradient = Instance.new("UIGradient")
+waveGradient.Color = ColorSequence.new{
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 150, 220))
+}
+waveGradient.Rotation = 90
+waveGradient.Parent = frame
+
+-- Animate waves
+task.spawn(function()
+	while true do
+		for i = 0, 360, 2 do
+			waveGradient.Rotation = i
+			task.wait(0.05)
+		end
+	end
+end)
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Text = "Shay Hub 🌊"
+title.Size = UDim2.new(1, -20, 0, 40)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 28
+title.TextStrokeTransparency = 0.2
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
+
+-- Invisible Button
+local invisibleBtn = Instance.new("TextButton")
+invisibleBtn.Text = "👻 Invisible"
+invisibleBtn.Size = UDim2.new(0.65, 0, 0.25, 0)
+invisibleBtn.Position = UDim2.new(0.175, 0, 0.55, 0)
+invisibleBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+invisibleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+invisibleBtn.Font = Enum.Font.GothamBold
+invisibleBtn.TextSize = 20
+invisibleBtn.Parent = frame
+Instance.new("UICorner", invisibleBtn).CornerRadius = UDim.new(0, 10)
+
+-- Invisible function
+invisibleBtn.MouseButton1Click:Connect(function()
+	local char = player.Character
+	if char then
+		for _, part in pairs(char:GetDescendants()) do
+			if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+				part.Transparency = 1
+				if part:FindFirstChild("face") then
+					part.face.Transparency = 1
+				end
+			end
+		end
+	end
+end)
+
+-- Make draggable
+local dragging, dragInput, dragStart, startPos
+frame.Active = true
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
