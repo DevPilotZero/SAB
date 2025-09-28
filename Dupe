@@ -1,0 +1,80 @@
+--// GUI Script - Made by Shy Hub
+
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ShyHubGui"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Main Frame
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 220, 0, 120)
+Frame.Position = UDim2.new(0.35, 0, 0.35, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.BorderSizePixel = 0
+Frame.Active = true -- Needed for dragging
+Frame.Draggable = false -- Deprecated, so we'll use UIS instead
+Frame.Parent = ScreenGui
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Title.Text = "Made by Shy Hub"
+Title.TextColor3 = Color3.fromRGB(0, 255, 0)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.Parent = Frame
+
+-- DUPE Button
+local DupeButton = Instance.new("TextButton")
+DupeButton.Size = UDim2.new(0, 200, 0, 60)
+DupeButton.Position = UDim2.new(0, 10, 0, 45)
+DupeButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+DupeButton.Text = "DUPE"
+DupeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DupeButton.Font = Enum.Font.GothamBold
+DupeButton.TextSize = 20
+DupeButton.Parent = Frame
+DupeButton.AutoButtonColor = true
+
+-- Functionality (example)
+DupeButton.MouseButton1Click:Connect(function()
+	print("Dupe button pressed!") 
+	-- Place your dupe function here
+end)
+
+--// Dragging system
+local UserInputService = game:GetService("UserInputService")
+local dragging, dragInput, dragStart, startPos
+
+Frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = Frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		Frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
